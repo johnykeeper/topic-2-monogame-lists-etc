@@ -16,14 +16,11 @@ namespace topic_2_monogame_lists_etc
         SpriteFont _font;
 
         List<Texture2D> _balls = new List<Texture2D>();
+        List<Vector2> _positions = new List<Vector2>();
 
         int _score = 0;
-        float _timer = 0f;
         MouseState _oldMouse;
-        Random _rng = new Random();
-        bool _onTitleScreen = true;
-        bool _gameOver = false;
-        const float GAME_LENGTH = 20f;
+       
 
 
         public Game1()
@@ -44,9 +41,9 @@ namespace topic_2_monogame_lists_etc
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _ballImage = Content.Load<Texture2D>("");
-            _backgroundImage = Content.Load<Texture2D>("");
-            _font = Content.Load<SpriteFont>("");
+            _ballImage = Content.Load<Texture2D>("ballimage");
+            _backgroundImage = Content.Load<Texture2D>("backgroundball");
+            _font = Content.Load<SpriteFont>("Font");
 
             // TODO: use this.Content to load your game content here
         }
@@ -57,37 +54,23 @@ namespace topic_2_monogame_lists_etc
                 Exit();
             MouseState mouse = Mouse.GetState();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if(_onTitleScreen)
+            if(mouse.LeftButton == ButtonState.Pressed && _oldMouse.LeftButton == ButtonState.Released)
             {
-                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
-                    _onTitleScreen = false;
+                _balls.Add(_ballImage);
+                _positions.Add(new Vector2(mouse.X, mouse.Y));
+                _score++;
             }
-            else if(_gameOver)
+            if (mouse.RightButton == ButtonState.Pressed && _oldMouse.RightButton == ButtonState.Released)
             {
-                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                if(_balls.Count > 0)
                 {
-                    _balls.Clear();
-                    _score = 0;
-                    _timer = 0f;
-                    _gameOver = false;
+                    _balls.RemoveAt(_balls.Count - 1);
+                    _positions.RemoveAt(_positions.Count - 1); 
                 }
+                
             }
-            else
-            {
-                _timer += dt;
-
-                if(_timer >= GAME_LENGTH)
-                    _gameOver = true;
-                if (mouse.LeftButton == ButtonState.Pressed && _oldMouse.LeftButton == ButtonState.Released)
-                {
-
-
-
-
-
-                }
-            }
+            _oldMouse = mouse;
+            base.Update(gameTime);
                 // TODO: Add your update logic here
 
                 base.Update(gameTime);
@@ -98,6 +81,22 @@ namespace topic_2_monogame_lists_etc
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_backgroundImage, Vector2.Zero, Color.White);
+            for(int i = 0; i < _balls.Count; i++)
+            {
+                if (_positions[i].Y < GraphicsDevice.Viewport.Height - 30)
+                    _positions[i] = new Vector2(_positions[i].X, _positions[i].Y + 2);
+
+
+                _spriteBatch.Draw(_balls[i], _positions[i], null, Color.White, 0f, new Vector2(_ballImage.Width / 2, _ballImage.Height / 2), 0.3f, SpriteEffects.None, 0f);
+            }
+
+            _spriteBatch.DrawString(_font, "Score: " + _score, new Vector2(10,10), Color.White);
+            _spriteBatch.DrawString(_font, "Balls: " + _balls.Count, new Vector2(10, 40), Color.White);
+
+            _spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
