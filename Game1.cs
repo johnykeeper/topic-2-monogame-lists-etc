@@ -60,16 +60,42 @@ namespace topic_2_monogame_lists_etc
                 _positions.Add(new Vector2(mouse.X, mouse.Y));
                 _score++;
             }
+            if (mouse.ScrollWheelValue > _oldMouse.ScrollWheelValue)
+            {
+                _balls.Add(_ballImage);
+                _positions.Add(new Vector2(mouse.X, mouse.Y));
+                _score++;
+            }
             if (mouse.RightButton == ButtonState.Pressed && _oldMouse.RightButton == ButtonState.Released)
             {
-                if(_balls.Count > 0)
+                for(int i = _balls.Count - 1; i >= 0; i--)
                 {
-                    _balls.RemoveAt(_balls.Count - 1);
-                    _positions.RemoveAt(_positions.Count - 1); 
+                    float distance = Vector2.Distance(_positions[i], new Vector2(mouse.X, mouse.Y));
+                    if(distance < 33)
+                    {
+                        _balls.RemoveAt(i);
+                        _positions.RemoveAt(i);
+                        break;
+                    }
+
                 }
                 
             }
-            _oldMouse = mouse;
+            if (mouse.ScrollWheelValue < _oldMouse.ScrollWheelValue)
+            {
+                for (int i = _balls.Count - 1; i >= 0; i--)
+                {
+                    float distance = Vector2.Distance(_positions[i], new Vector2(mouse.X, mouse.Y));
+                    if (distance < 33)
+                    {
+                        _balls.RemoveAt(i);
+                        _positions.RemoveAt(i);
+                        break;
+                    }
+
+                }
+            }
+                _oldMouse = mouse;
             base.Update(gameTime);
                 // TODO: Add your update logic here
 
